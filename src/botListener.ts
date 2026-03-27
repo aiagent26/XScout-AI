@@ -25,7 +25,7 @@ async function poll() {
           const senderName = update.message.from?.first_name || 'User';
 
           if (text === '/start' || text.toLowerCase() === 'hello') {
-            const replyMessage = `Xin chào ${senderName}! 👋\n\nMã xác nhận phân quyền (Telegram UID) của bạn là:\n\n<code>${chatId}</code>\n\nBạn hãy COPY mã số này và Paste vào biểu mẫu đồng bộ trên Giao diện phần mềm XScout nhé! Chúc bạn thu được nhiều lợi nhuận Onchain! 🚀`;
+            const replyMessage = `Hello ${senderName}! 👋\n\nYour Authorization Identity (Telegram UID) is:\n\n<code>${chatId}</code>\n\nPlease COPY this Unique ID and paste it into the Sync Form on the XScout Web Interface! Happy Onchain Yielding! 🚀`;
             
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
               method: 'POST',
@@ -36,19 +36,19 @@ async function poll() {
                 parse_mode: 'HTML'
               })
             });
-            console.log(`✅ Đã gửi trả thông tin UID cho ${senderName} (${chatId})`);
+            console.log(`✅ Push validation logic succeeded. Transmitted UID back to ${senderName} (${chatId})`);
           }
         }
       }
     }
   } catch (err) {
-    console.error('⚠️ Lỗi kết nối Telegram Polling:', err);
+    console.error('⚠️ Warning: Telegram Long-Polling connection dropped:', err);
   }
 
   // Tiếp tục vòng lặp listener
   setTimeout(poll, 1000);
 }
 
-console.log('🤖 Khởi động máy chủ Vệ tinh Telegram Listener (XScout Bot)...');
-console.log('Đang chờ người dùng nhắn tin /start để báo cáo UID...');
+console.log('🤖 Invoking background Telegram Satellite Node (XScout AI Listener)...');
+console.log('⏳ Awaiting strict command /start to broadcast Authorization UID payload...');
 poll();
