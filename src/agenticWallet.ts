@@ -34,10 +34,11 @@ export class AgenticWalletService {
     const contractAddress = "0xD005792034955aD793d8a5eCaC140616559A9396";
     
     try {
-      // Đọc ABI
-      const artifactPath = path.resolve(process.cwd(), "./artifacts/src/contracts/AgenticWalletGuard.sol/AgenticWalletGuard.json");
-      const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf-8"));
-      const guardContract = new ethers.Contract(contractAddress, artifact.abi, agentWallet);
+      // Đọc ABI trực tiếp bằng Cú pháp Human-Readable (Vượt rào lỗi mất File Artifact trên VPS Cloud)
+      const HUMAN_ABI = [
+        "function executeAITrade(address router, address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external"
+      ];
+      const guardContract = new ethers.Contract(contractAddress, HUMAN_ABI, agentWallet);
 
       console.log(`\n⏳ Pushing live Execution payload onto X Layer Blockchain... Listening to Mempool heartbeat...`);
       // Fake các tham số Token để test chức năng Revert của Smart Contract bảo vệ
