@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+
 import { DebateCouncil } from './agent/debate';
 import { AgenticWalletService } from './agenticWallet';
 import { TelegramService } from './telegramAlerts';
@@ -10,6 +12,9 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// 🔀 PHỤC VỤ TRỰC TIẾP FILE GIAO DIỆN REACT (PRODUCTION BUILDS)
+app.use(express.static(path.join(process.cwd(), 'frontend/dist')));
 
 app.post('/api/trade', async (req: any, res: any) => {
     try {
@@ -60,8 +65,14 @@ app.post('/api/trade', async (req: any, res: any) => {
     }
 });
 
-const PORT = 3001;
+// Chuyển hướng mọi URL 404 về React App Frontend
+app.get('*', (req: any, res: any) => {
+    res.sendFile(path.join(process.cwd(), 'frontend/dist/index.html'));
+});
+
+// Thay đổi PORT sang 8080 để Cloudflare hỗ trợ Proxy chuẩn HTPPS
+const PORT = 8080;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`\n🚀 MAINNET API GATEWAY ONLINE.`);
-    console.log(`🌍 Live REST Server Listening on: http://0.0.0.0:${PORT}/api/trade\n`);
+    console.log(`\n🚀 MAINNET FULL-STACK GATEWAY ONLINE.`);
+    console.log(`🌍 Live Server Monitoring & Trade Rest API Listening on: http://0.0.0.0:${PORT}\n`);
 });

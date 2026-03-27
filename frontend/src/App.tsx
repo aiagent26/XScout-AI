@@ -126,8 +126,8 @@ function App() {
     setTimeout(() => addLog('security', "Guards Injecting Live Market Metadata via OKX Trade API Router. Awaiting Deep-Thinking LLM Debates... (This usually takes 8-15 seconds)"), 1000);
 
     try {
-      // Gọi lên Server Backend thật sự của bạn (File src/apiServer.ts)
-      const apiUrl = `http://${window.location.hostname}:3001/api/trade`;
+      // 🚀 PRODUCTION ARCHITECTURE V2: Relative API Pathing (Bypasses Browser CORS / HTTPS Mixed Content Lockout)
+      const apiUrl = `/api/trade`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
