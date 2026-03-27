@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import './apiServer'; // Tự động bật Cổng Giao Tiếp API Port 3001 để Frontend gọi lệnh
 dotenv.config();
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;

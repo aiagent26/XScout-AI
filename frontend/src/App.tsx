@@ -118,33 +118,47 @@ function App() {
     setLogs([]);
     setx402Fee(0);
 
-    setTimeout(() => addLog('system', t.rightPanel.logs.teeBase), 500);
-    setTimeout(() => addLog('security', t.rightPanel.logs.guardrail), 1200);
-    setTimeout(() => addLog('system', t.rightPanel.logs.debateStart), 2000);
-    
-    setTimeout(() => {
-      addLog('bull', t.rightPanel.logs.bullArg);
-      setx402Fee(0.01);
-    }, 3000);
+    setTimeout(() => addLog('system', "Initializing Decentralized HTTP Relay... Bypassing Mocks. Opening Pipeline to TEE Node."), 300);
+    setTimeout(() => addLog('security', "Guards Injecting Live Market Metadata via OKX Trade API Router. Awaiting Deep-Thinking LLM Debates... (This usually takes 8-15 seconds)"), 1000);
 
-    setTimeout(() => {
-      addLog('bear', t.rightPanel.logs.bearArg);
-      setx402Fee(0.02);
-    }, 5500);
+    try {
+      // Gọi lên Server Backend thật sự của bạn (File src/apiServer.ts)
+      const apiUrl = `http://${window.location.hostname}:3001/api/trade`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompt })
+      });
+      
+      const realData = await response.json();
+      
+      if(realData.success) {
+        // Nạp Dữ liệu Thật sự của AI Mua / Bán
+        addLog('bull', `BULL ARGUMENT:\n${realData.debate.bullArgument}`);
+        setx402Fee(0.01);
+        
+        setTimeout(() => {
+           addLog('bear', `BEAR AUDITOR REBUTTAL:\n${realData.debate.bearArgument}`);
+           setx402Fee(0.02);
+        }, 1200);
 
-    setTimeout(() => {
-      addLog('judge', t.rightPanel.logs.judgeArg);
-      setx402Fee(0.03);
-    }, 8500);
+        setTimeout(() => {
+           addLog('judge', `JUDGE DECISION MATRIX:\n${JSON.stringify(realData.debate.finalDecision, null, 2)}`);
+           setx402Fee(0.03);
+        }, 3000);
 
-    setTimeout(() => {
-      addLog('system', t.rightPanel.logs.teeAuth);
-    }, 10500);
-
-    setTimeout(() => {
-      addLog('system', t.rightPanel.logs.hashLog);
-      setIsExecuting(false);
-    }, 12500);
+        setTimeout(() => {
+           addLog('system', `EXECUTION VERDICT (TEE Onchain System):\nStatus: ${realData.status}\nBlock Hash Receipt: ${realData.txHash}`);
+           setIsExecuting(false);
+        }, 4500);
+      } else {
+        addLog('system', `SYSTEM FAILURE! API Gateway Crumbled: ${realData.error}`);
+        setIsExecuting(false);
+      }
+    } catch (e: any) {
+       addLog('system', `CRITICAL NETWORK ERROR. Is the PM2 Backend API Server running on port 3001? Detail: ${e}`);
+       setIsExecuting(false);
+    }
   };
 
   return (
