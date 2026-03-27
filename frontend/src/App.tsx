@@ -108,6 +108,10 @@ function App() {
   };
 
   const handleAction = async () => {
+    if (!walletConnected) {
+      alert("⚠️ PLEASE CONNECT OKX WEB3 WALLET TO AUTHORIZE x402 INFERENCE FEES.");
+      return;
+    }
     if (!prompt) return;
     simulateExecution();
   };
@@ -289,9 +293,10 @@ function App() {
         <button 
           className="execute-btn" 
           onClick={handleAction}
-          disabled={isExecuting || !prompt}
+          disabled={isExecuting || !prompt || !walletConnected}
+          style={{ opacity: (!walletConnected || !prompt) ? 0.5 : 1, cursor: (!walletConnected || !prompt) ? 'not-allowed' : 'pointer' }}
         >
-          {isExecuting ? t.leftPanel.btnExecuting : t.leftPanel.btnExecute}
+          {!walletConnected ? '🔒 CONNECT WALLET TO UNLOCK' : (isExecuting ? t.leftPanel.btnExecuting : t.leftPanel.btnExecute)}
         </button>
       </div>
 
