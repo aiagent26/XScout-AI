@@ -65,8 +65,8 @@ app.post('/api/trade', async (req: any, res: any) => {
     }
 });
 
-// Chuyển hướng mọi URL 404 về React App Frontend
-app.get('*', (req: any, res: any) => {
+// Chuyển hướng mọi URL 404 về React App Frontend (Fix lỗi Express v5 Regexp)
+app.get('/*', (req: any, res: any) => {
     res.sendFile(path.join(process.cwd(), 'frontend/dist/index.html'));
 });
 
