@@ -45,6 +45,13 @@ contract AgenticWalletGuard {
     }
 
     /**
+     * @dev Cho phép Hợp đồng Két Sắt nhận nạp tiền tự do từ cộng đồng (Native Token: OKB/ETH).
+     * Nạp Vốn (Deposit) để AI có đạn đi giao dịch.
+     */
+    receive() external payable {}
+    fallback() external payable {}
+
+    /**
      * @dev Bàn giao quyền lực Tối Cao (Transfer Ownership) cho Ví Lạnh (Cách 3).
      * Chỉ Owner hiện tại mới được gọi hàm này. Ví cũ sau khi giao sẽ vĩnh viễn mất quyền.
      */

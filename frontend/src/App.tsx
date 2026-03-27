@@ -74,6 +74,39 @@ function App() {
     }
   };
 
+  const handleDeposit = async () => {
+    if (!walletConnected || !(window as any).ethereum) {
+      alert("Please connect your wallet first!");
+      return;
+    }
+    
+    setIsExecuting(true);
+    setLogs([]);
+    addLog('system', "Awaiting User Metamask Signature to Deposit 0.0001 OKB/ETH into Vault...");
+    
+    try {
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
+      
+      // Gửi tiền thật vào Smart Contract Két sắt trên X Layer
+      const vaultAddress = "0xD005792034955aD793d8a5eCaC140616559A9396";
+      
+      const tx = await signer.sendTransaction({
+        to: vaultAddress,
+        value: ethers.parseEther("0.0001")
+      });
+      
+      addLog('system', `[Vault Deposit] Broadcasting Transaction to Mempool: ${tx.hash}`);
+      await tx.wait(); // Chờ Mạng lưới xác nhận Block
+      
+      addLog('security', "✅ FUNDING CONFIRMED: 0.0001 OKB successfully Delegated to Agentic Smart Contract Vault constraints!");
+    } catch (e: any) {
+      addLog('system', `[Vault Deposit] User Canceled or Transaction Failed: ${e.message}`);
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
   const handleTelegramSync = async () => {
     if (/^\d+$/.test(telegramInput.trim()) && telegramInput.trim().length >= 6) {
       setIsExecuting(true);
@@ -204,9 +237,22 @@ function App() {
             <div className="subtitle">{t.leftPanel.subtitle}</div>
           </div>
 
-          <button className="bws-btn" onClick={handleWalletClick} disabled={isConnecting} style={{ background: walletConnected ? 'rgba(0, 255, 136, 0.1)' : '', borderColor: walletConnected ? 'var(--accent-green)' : '' }}>
-             {isConnecting ? '⏳ Waiting for Signature...' : (walletConnected ? `✅ ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} (Disconnect)` : t.leftPanel.connectWallet)}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button className="bws-btn" onClick={handleWalletClick} disabled={isConnecting} style={{ background: walletConnected ? 'rgba(0, 255, 136, 0.1)' : '', borderColor: walletConnected ? 'var(--accent-green)' : '' }}>
+               {isConnecting ? '⏳ Waiting for Signature...' : (walletConnected ? `✅ ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} (Disconnect)` : t.leftPanel.connectWallet)}
+            </button>
+            
+            {walletConnected && (
+              <button 
+                className="bws-btn" 
+                onClick={handleDeposit} 
+                disabled={isExecuting}
+                style={{ background: 'rgba(255, 153, 0, 0.1)', borderColor: '#ff9900', color: '#ff9900', fontSize: '0.85rem' }}
+              >
+                💰 Deposit 0.0001 OKB (Delegate to Vault)
+              </button>
+            )}
+          </div>
 
           <div className="input-section">
             <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>{t.leftPanel.inputLabel}</label>
