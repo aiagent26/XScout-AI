@@ -27,47 +27,47 @@ export class DebateCouncil {
   }
 
   async debate(tokenPairInfo: string, userRequest: string): Promise<DebateCouncilResult> {
-    console.log(`   🐂 [Bull Agent] Đang phân tích rủi ro và tiềm năng trên X Layer (Model: ${this.modelName})...`);
+    console.log(`   🐂 [Bull Agent] Analyzing opportunities and upside potential on X Layer (Model: ${this.modelName})...`);
     const { text: bullArgument } = await generateText({
       model: this.aiProvider(this.modelName),
-      prompt: `Bạn là XScout Bull Agent. Tìm lý do tích cực để ĐẦU TƯ rủi ro thấp dựa trên dữ liệu thanh khoản: ${tokenPairInfo}.\nYêu cầu của KH: ${userRequest}.\n\nLƯU Ý CỰC KỲ QUAN TRỌNG: Bạn PHẢI trả lời bằng ĐÚNG Ngôn Ngữ mà Khách Hàng (KH) đã sử dụng trong Yêu cầu trên (Nếu KH dùng Tiếng Trung, hãy trả lời bằng Tiếng Trung. Nếu Tiếng Anh, trả lời Tiếng Anh). Trả lời tối đa 3 câu.`
+      prompt: `You are the XScout Bull Agent. Identify the absolute best bullish scenario for LOW RISK investment based on this liquidity data: ${tokenPairInfo}.\nCustomer Request: ${userRequest}.\n\nCRITICAL DIRECTIVE: You MUST respond in the EXACT Language the Customer utilized in their request (e.g., if they spoke Chinese, answer in Chinese. If English, answer in English). Output maximum 3 sentences.`
     });
 
-    console.log(`   🐻 [Bear Agent] Đang tìm các rủi ro tiềm ẩn (Impermanent loss, rug pull...).`);
+    console.log(`   🐻 [Bear Agent] Scrutinizing protocol risks (Impermanent Loss, Depeg, Rug pulls)...`);
     const { text: bearArgument } = await generateText({
       model: this.aiProvider(this.modelName),
-      prompt: `Bạn là XScout Bear Agent. Phản biện lại quyết định đầu tư vào thông tin sau bằng cách chỉ ra những rủi ro: ${tokenPairInfo}.\nYêu cầu của KH: ${userRequest}.\n\nLƯU Ý CỰC KỲ QUAN TRỌNG: Bạn PHẢI trả lời bằng ĐÚNG Ngôn Ngữ mà Khách Hàng (KH) đã sử dụng trong Yêu cầu trên (Ví dụ nếu KH dùng Tiếng Trung, bạn bắt buộc phản biện bằng Tiếng Trung). Trả lời tối đa 3 câu.`
+      prompt: `You are the XScout Bear Agent. Rebut the bullish investment decision by outlining severe latent risks on: ${tokenPairInfo}.\nCustomer Request: ${userRequest}.\n\nCRITICAL DIRECTIVE: You MUST respond in the EXACT Language the Customer utilized in their request (e.g., if they spoke Chinese, answer in Chinese). Output maximum 3 sentences.`
     });
 
-    console.log(`   👨‍⚖️ [Judge Agent] Đang phán quyết định cuối cùng...`);
+    console.log(`   👨‍⚖️ [Judge Agent] Reconciling debate arguments for Final Verdict...`);
     const { text: finalDecisionStr } = await generateText({
       model: this.aiProvider(this.modelName),
-      system: `Bạn là Judge Agent - Cốt lõi của hệ thống XScout AI trên mạng X Layer. Bạn là người ra Quyết định cuối cùng (Kết án).
-Bắt buộc TRẢ VỀ DUY NHẤT một chuỗi JSON hợp lệ theo cấu trúc: 
-{ "action": "SWAP" hoặc "STAKE", "from": "...", "to": "...", "amount": Number, "confidenceScore": Float, "explanation": "..." }. 
+      system: `You are the Judge Agent - the core consensus engine of the XScout AI system on the X Layer network. You hold the ultimate Execution Authority.
+You MUST RETURN one valid JSON string in strictly this format: 
+{ "action": "SWAP" or "STAKE" or "CANCEL", "from": "...", "to": "...", "amount": Number, "confidenceScore": Float, "explanation": "..." }. 
 
-Luật Thép (Smart Contract Bounds Constraints) - BẮT BUỘC TUÂN THỦ:
-1. Whitelist: Chỉ chốt lệnh Swap trên DEX OKX hoặc Stake vào (Aave, Curve). Cấm mọi pool lạ.
-2. An Toàn Rút/Chuyển Tiền: Tuyệt đối không sinh lệnh Transfer tiền cho ví ngoài. Laps/Biên lai nội bộ.
-3. Kìm kẹp Trượt giá (Slippage): Cảnh báo hoặc bác bỏ (CANCEL) nếu lệnh vi phạm trượt giá > 5% (Bảo vệ SL cứng).
-4. Tốc Độ Lệnh (Cooldown): Cấm đề xuất các chiến thuật scalping (đánh nhiều lệnh < 1 phút) vì Hợp đồng Thông minh Tự động khước từ để chống spam Gas. 
+Iron-Clad Constraints (Smart Contract Bounds Constraints) - MUST OBEY:
+1. Whitelist: Only execute Swap orders on OKX DEX or Stake into Aave/Curve. Ban all unverified pools.
+2. Safety Withdrawal: Absolutely NO external Transfer operations. Intrinsic Ledger logic only.
+3. Slippage Bounds: Trigger CANCEL if operation breaches the 5% hard stop-loss slippage limit.
+4. Velocity Cooldown: Forbid rapid scalping tactics (< 1 minute) due to Smart Contract Gas spam mitigation logic.
 
-Nếu 1 trong 4 lỗi trên xảy ra hoặc yêu cầu phi logic -> Trả về JSON với action = "CANCEL".
-Lấy giá trị vốn từ yêu cầu: ${userRequest}. Không in bất kì markdown nào khác ngoài JSON.
-LƯU Ý CỰC KỲ QUAN TRỌNG: Thuộc tính "explanation" trong chuỗi JSON PHẢI được viết bằng ĐÚNG ngôn ngữ gốc của Khách hàng (User Request language).`,
+If any above constraints are breached or the prompt is illogical -> Return JSON with action = "CANCEL" and confidenceScore = 0.
+Extract capital value from Customer userRequest: ${userRequest}. DO NOT return markdown symbols outside the JSON string boundaries.
+CRITICAL EXPROPRIATION DANGER: The "explanation" attribute inside the JSON MUST be written in the original native language of the Customer Request.`,
       prompt: `Bull Argument:\n${bullArgument}\n\nBear Argument:\n${bearArgument}`
     });
 
     try {
         const jsonMatch = finalDecisionStr.match(/\{[\s\S]*\}/);
         const finalDecision = jsonMatch ? JSON.parse(jsonMatch[0]) : {
-            action: 'PARSE_FAILED', from: 'USDC', to: 'USDT', amount: 0, confidenceScore: 0, explanation: 'Gặp lỗi khi parse JSON từ AI'
+            action: 'PARSE_FAILED', from: 'USDC', to: 'USDT', amount: 0, confidenceScore: 0, explanation: 'Failed to extract JSON format from AI output'
         };
         return { bullArgument, bearArgument, finalDecision };
     } catch(e) {
         return {
             bullArgument, bearArgument,
-            finalDecision: { action: 'SYS_ERROR', from: 'USDC', to: 'USDC', amount: 0, confidenceScore: 0, explanation: 'Lỗi parse nghiêm trọng' }
+            finalDecision: { action: 'SYS_ERROR', from: 'USDC', to: 'USDC', amount: 0, confidenceScore: 0, explanation: 'Critical JSON parse breakdown' }
         }
     }
   }
