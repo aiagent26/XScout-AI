@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { ethers } from 'ethers';
+
 import './index.css';
 import Guide from './Guide';
 import { getT } from './i18n';
@@ -22,6 +24,8 @@ function App() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [x402Fee, setx402Fee] = useState(0.00);
   const [walletConnected, setWalletConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
   const [telegramEnabled, setTelegramEnabled] = useState(false);
   const [telegramUid, setTelegramUid] = useState('');
   const [telegramNickname, setTelegramNickname] = useState('');
@@ -41,6 +45,33 @@ function App() {
 
   const addLog = (type: LogType, text: string) => {
     setLogs(prev => [...prev, { id: Date.now() + Math.random(), type, text }]);
+  };
+
+  const handleWalletClick = async () => {
+    if (walletConnected) {
+      setWalletConnected(false);
+      setWalletAddress('');
+    } else {
+      setIsConnecting(true);
+      try {
+        if ((window as any).ethereum) {
+          // Kết nối thẳng tới Extension Metamask / OKX Wallet của User bằng Ethers v6
+          const provider = new ethers.BrowserProvider((window as any).ethereum);
+          const accounts = await provider.send("eth_requestAccounts", []);
+          
+          if (accounts.length > 0) {
+            setWalletAddress(accounts[0]);
+            setWalletConnected(true);
+          }
+        } else {
+          alert("PLEASE INSTALL METAMASK OR OKX WEB3 WALLET EXTENSION TO PROCEED!");
+        }
+      } catch (error) {
+        console.error("Wallet Connection Failed:", error);
+      } finally {
+        setIsConnecting(false);
+      }
+    }
   };
 
   const handleTelegramSync = async () => {
@@ -155,8 +186,8 @@ function App() {
             <div className="subtitle">{t.leftPanel.subtitle}</div>
           </div>
 
-          <button className="bws-btn" onClick={() => setWalletConnected(true)} style={{ background: walletConnected ? 'rgba(0, 255, 136, 0.1)' : '', borderColor: walletConnected ? 'var(--accent-green)' : '' }}>
-             {walletConnected ? '✅ Connected: 0xXLayer...A1b2' : t.leftPanel.connectWallet}
+          <button className="bws-btn" onClick={handleWalletClick} disabled={isConnecting} style={{ background: walletConnected ? 'rgba(0, 255, 136, 0.1)' : '', borderColor: walletConnected ? 'var(--accent-green)' : '' }}>
+             {isConnecting ? '⏳ Waiting for Signature...' : (walletConnected ? `✅ ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} (Disconnect)` : t.leftPanel.connectWallet)}
           </button>
 
           <div className="input-section">
