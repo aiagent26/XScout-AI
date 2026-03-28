@@ -6,7 +6,7 @@ import path from 'path';
 import { DebateCouncil } from './agent/debate';
 import { AgenticWalletService } from './agenticWallet';
 import { TelegramService } from './telegramAlerts';
-import { getUserInfo, recordInferenceCost, updateTelegramUid } from './feeAccounting';
+import { getUserInfo, recordInferenceCost, updateTelegramUid, recordUserDeposit } from './feeAccounting';
 
 dotenv.config();
 
@@ -23,8 +23,16 @@ app.get('/api/user-debt/:wallet', (req: any, res: any) => {
     res.json({ 
         success: true, 
         debt: info ? info.totalUnpaidDebtUsdc : 0,
-        telegramUid: info ? info.telegramUid : ''
+        telegramUid: info ? info.telegramUid : '',
+        depositedOkb: info ? info.totalDepositedOkb : 0
     });
+});
+
+app.post('/api/user-deposit/:wallet', (req: any, res: any) => {
+    const wallet = req.params.wallet;
+    const { amount } = req.body;
+    recordUserDeposit(wallet, amount);
+    res.json({ success: true });
 });
 
 app.post('/api/user-telegram', (req: any, res: any) => {

@@ -28,6 +28,7 @@ function App() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [vaultBalance, setVaultBalance] = useState('0.0000');
+  const [userShare, setUserShare] = useState('0.0000');
   const [totalDebt, setTotalDebt] = useState('0.00');
   const vaultAddress = "0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5"; // X Layer Vault V2
   const [telegramEnabled, setTelegramEnabled] = useState(false);
@@ -72,6 +73,9 @@ function App() {
       if (data.success && data.debt !== undefined) {
         setTotalDebt(Number(data.debt).toFixed(2));
       }
+      if (data.success && data.depositedOkb !== undefined) {
+        setUserShare(Number(data.depositedOkb).toFixed(4));
+      }
       if (data.success && data.telegramUid) {
         setTelegramEnabled(true);
         setTelegramUid(data.telegramUid);
@@ -87,6 +91,7 @@ function App() {
       setWalletConnected(false);
       setWalletAddress('');
       setVaultBalance('0.0000');
+      setUserShare('0.0000');
       // Wipe visual TG states (keep in local storage for later)
       setTelegramEnabled(false);
       setTelegramUid('');
@@ -173,9 +178,18 @@ function App() {
         value: ethers.parseEther(depositAmount),
         gasLimit: 30000 
       });
-      
       addLog('system', `[Vault Deposit] Broadcasting Transaction to Mempool: ${tx.hash}`);
       await tx.wait(); // Chờ Mạng lưới xác nhận Block
+
+      // KẾT NỐI API SERVER ĐỂ CẬP NHẬT CỔ PHẦN OKB RIÊNG LẺ CỦA USER NÀY
+      if (walletConnected && walletAddress) {
+        await fetch(`/api/user-deposit/${walletAddress}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: depositAmount })
+        }).catch(e => console.error("API Deposit Recording Error:", e));
+        await fetchUserDebt(walletAddress); // Re-fetch all balances natively
+      }
       
       addLog('security', `✅ FUNDING CONFIRMED: ${depositAmount} Native Asset successfully Delegated to Agentic Smart Contract Vault constraints!`);
       await fetchVaultBalance(); // Cập nhật lại số dư Két Sắt ngay lập tức
@@ -325,21 +339,24 @@ function App() {
             </button>
             
             {walletConnected && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ 
-                  background: 'rgba(255, 255, 255, 0.03)', 
-                  border: '1px solid rgba(255, 255, 255, 0.1)', 
-                  borderRadius: '8px', 
-                  padding: '10px', 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center' 
-                }}>
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>🏦 Vault TVL:</span>
-                  <strong style={{ color: 'var(--accent-green)', fontSize: '1.1rem' }}>{vaultBalance} OKB</strong>
-                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ 
+                    background: 'rgba(255, 255, 255, 0.03)', 
+                    border: '1px solid rgba(255, 255, 255, 0.1)', 
+                    borderRadius: '8px', 
+                    padding: '10px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>🏦 Vault TVL:</span>
+                        <strong style={{ color: 'var(--accent-green)', fontSize: '1.1rem' }}>{vaultBalance} OKB</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '6px' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.80rem' }}>👤 Your Share:</span>
+                        <strong style={{ color: 'var(--accent-gold)', fontSize: '0.9rem' }}>{userShare} OKB</strong>
+                    </div>
+                  </div>
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'rgba(255, 153, 0, 0.05)', padding: '5px', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'rgba(255, 153, 0, 0.05)', padding: '5px', borderRadius: '8px' }}>
                   <input 
                     type="number" 
                     value={depositAmount} 

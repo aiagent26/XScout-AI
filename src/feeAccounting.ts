@@ -11,6 +11,7 @@ export interface UserAccountInfo {
     totalFeesCollectedUsdc: number;
     lastUpdated: number;
     telegramUid?: string;
+    totalDepositedOkb?: number;
 }
 
 /**
@@ -132,4 +133,32 @@ export function updateTelegramUid(walletAddress: string, telegramUid: string) {
     } catch(e) { 
         console.error("Lỗi khi ghi Database Kế Toán Telegram:", e); 
     }
+}
+
+/**
+ * Ghi nhận Cổ Phần Native OKB User Nạp vào Quỹ Két Sắt Khổng Lồ
+ */
+export function recordUserDeposit(walletAddress: string, depositAmountOkb: number) {
+    if (!walletAddress) return;
+    initDB();
+    const dbRaw = fs.readFileSync(DB_PATH, 'utf-8');
+    const db = JSON.parse(dbRaw);
+
+    if (!db[walletAddress]) {
+        db[walletAddress] = {
+            walletAddress,
+            totalUnpaidDebtUsdc: 0,
+            totalProfitsGeneratedUsdc: 0,
+            totalFeesCollectedUsdc: 0,
+            lastUpdated: Date.now(),
+            totalDepositedOkb: 0
+        };
+    }
+
+    const currentDeposit = db[walletAddress].totalDepositedOkb || 0;
+    db[walletAddress].totalDepositedOkb = Number(currentDeposit) + Number(depositAmountOkb);
+    db[walletAddress].lastUpdated = Date.now();
+
+    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+    console.log(`[Admin DB Accounting] Allocated Vault TVL Share: +${depositAmountOkb} OKB for Wallet: ${walletAddress}`);
 }
