@@ -22,7 +22,7 @@ function App() {
   const [prompt, setPrompt] = useState(t.leftPanel.p1Val);
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
-  const [depositAmount, setDepositAmount] = useState('0.1');
+  const [depositAmount, setDepositAmount] = useState('0.002');
   const [x402Fee, setx402Fee] = useState(0.00);
   const [walletConnected, setWalletConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -125,11 +125,14 @@ function App() {
     try {
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       
-      // AUTO-SWITCH NETWORK: Yêu cầu chuyển sang X Layer Mainnet nếu User đang ở nhầm mạng (Thường gây lỗi revert Metamask)
-      try {
-        await provider.send("wallet_switchEthereumChain", [{ chainId: "0xc4" }]); // 196 = 0xc4 in Hex (X Layer Mainnet)
-      } catch (switchError: any) {
-        addLog('system', `[Network Constraint] Please manually switch Metamask to X Layer Mainnet to deposit into this Vault.`);
+      // AUTO-SWITCH NETWORK: Ngăn triệt để lỗi estimateGas do khác Mạng
+      const network = await provider.getNetwork();
+      if (network.chainId !== 196n) {
+        try {
+          await provider.send("wallet_switchEthereumChain", [{ chainId: "0xc4" }]); // X Layer Mainnet Hex
+        } catch (switchError: any) {
+          throw new Error("NETWORK CONSTRAINT: You MUST switch your Metamask to X Layer Mainnet to securely deposit Native OKB into the Vault. Transaction Aborted.");
+        }
       }
 
       const signer = await provider.getSigner();
