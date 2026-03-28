@@ -6,7 +6,7 @@ import path from 'path';
 import { DebateCouncil } from './agent/debate';
 import { AgenticWalletService } from './agenticWallet';
 import { TelegramService } from './telegramAlerts';
-import { getUserInfo, recordInferenceCost } from './feeAccounting';
+import { getUserInfo, recordInferenceCost, updateTelegramUid } from './feeAccounting';
 
 dotenv.config();
 
@@ -20,7 +20,17 @@ app.use(express.static(path.join(process.cwd(), 'frontend/dist')));
 app.get('/api/user-debt/:wallet', (req: any, res: any) => {
     const wallet = req.params.wallet;
     const info = getUserInfo(wallet);
-    res.json({ success: true, debt: info ? info.totalUnpaidDebtUsdc : 0 });
+    res.json({ 
+        success: true, 
+        debt: info ? info.totalUnpaidDebtUsdc : 0,
+        telegramUid: info ? info.telegramUid : ''
+    });
+});
+
+app.post('/api/user-telegram', (req: any, res: any) => {
+    const { wallet, uid } = req.body;
+    updateTelegramUid(wallet, uid);
+    res.json({ success: true });
 });
 
 app.post('/api/trade', async (req: any, res: any) => {
@@ -56,11 +66,15 @@ app.post('/api/trade', async (req: any, res: any) => {
 
             actionStatus = "Executed Onchain Successfully";
 
-            // Push to Telegram if configured
+            // Bắn Thông báo về đúng Nhạc Điện Thoại của Chủ Nhân Ví
             const telegram = new TelegramService();
-            const testUserID = process.env.TEST_USER_TELEGRAM_ID || '';
-            if (testUserID) {
-                await telegram.sendAlert(testUserID, `🟢 <b>XScout Live Execution Alert</b>\n\n- <b>Status:</b> ${actionStatus}\n- <b>Action:</b> SWAP ${debateResult.finalDecision.amount} ${debateResult.finalDecision.from} -> ${debateResult.finalDecision.to}\n- <b>TxHash:</b> <code>${txHash}</code>\n\n📝 <b>AI Agent Rationale:</b>\n${debateResult.finalDecision.explanation}`);
+            const userInfo = getUserInfo(wallet);
+            const targetTelegramID = (userInfo && userInfo.telegramUid) 
+                                      ? userInfo.telegramUid 
+                                      : process.env.TEST_USER_TELEGRAM_ID;
+                                      
+            if (targetTelegramID) {
+                await telegram.sendAlert(targetTelegramID, `🟢 <b>XScout Live Execution Alert</b>\n\n- <b>Status:</b> ${actionStatus}\n- <b>Action:</b> SWAP ${debateResult.finalDecision.amount} ${debateResult.finalDecision.from} -> ${debateResult.finalDecision.to}\n- <b>TxHash:</b> <code>${txHash}</code>\n\n📝 <b>AI Agent Rationale:</b>\n${debateResult.finalDecision.explanation}`);
             }
         }
 

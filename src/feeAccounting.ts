@@ -10,6 +10,7 @@ export interface UserAccountInfo {
     totalProfitsGeneratedUsdc: number;
     totalFeesCollectedUsdc: number;
     lastUpdated: number;
+    telegramUid?: string;
 }
 
 /**
@@ -103,5 +104,32 @@ export function getUserInfo(walletAddress: string): UserAccountInfo | null {
         return data[walletAddress] || null;
     } catch {
         return null;
+    }
+}
+
+/**
+ * Hàm Ghi nhớ Telegram ID của User vào Database Máy chủ 
+ */
+export function updateTelegramUid(walletAddress: string, telegramUid: string) {
+    if (!walletAddress) return;
+    initDB();
+    try {
+        const data = JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
+        if (!data[walletAddress]) {
+            data[walletAddress] = {
+                walletAddress,
+                totalUnpaidDebtUsdc: 0,
+                totalProfitsGeneratedUsdc: 0,
+                totalFeesCollectedUsdc: 0,
+                lastUpdated: Date.now()
+            } as UserAccountInfo;
+        }
+        
+        data[walletAddress].telegramUid = telegramUid;
+        data[walletAddress].lastUpdated = Date.now();
+        fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+        console.log(`[Admin DB Accounting] Cập nhật Telegram Binding: ${telegramUid} cho ví: ${walletAddress}`);
+    } catch(e) { 
+        console.error("Lỗi khi ghi Database Kế Toán Telegram:", e); 
     }
 }

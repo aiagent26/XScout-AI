@@ -72,6 +72,11 @@ function App() {
       if (data.success && data.debt !== undefined) {
         setTotalDebt(Number(data.debt).toFixed(2));
       }
+      if (data.success && data.telegramUid) {
+        setTelegramEnabled(true);
+        setTelegramUid(data.telegramUid);
+        setTelegramNickname("Tài khoản Đã Liên Kết");
+      }
     } catch (e) {
       console.error("Failed to fetch User Debt", e);
     }
@@ -98,16 +103,7 @@ function App() {
             setWalletAddress(accounts[0]);
             setWalletConnected(true);
             await fetchVaultBalance(); // Tải số dư Két
-            await fetchUserDebt(accounts[0]); // Tải Kế toán Nợ
-
-            // Auto-Bind Saved Telegram Profile Local Storage
-            const savedUid = localStorage.getItem('xscout_tg_uid_' + accounts[0]);
-            const savedNick = localStorage.getItem('xscout_tg_nickname_' + accounts[0]);
-            if (savedUid) {
-              setTelegramEnabled(true);
-              setTelegramUid(savedUid);
-              setTelegramNickname(savedNick || '');
-            }
+            await fetchUserDebt(accounts[0]); // Tải Kế toán Nợ, Dữ liệu Telegram UID từ DB server!
           }
         } else {
           alert("PLEASE INSTALL METAMASK OR OKX WEB3 WALLET EXTENSION TO PROCEED!");
@@ -218,10 +214,13 @@ function App() {
         setTelegramInput('');
         setIsExecuting(false);
 
-        // Permanently persist to browser cache tied explicitly to this Metamask wallet
+        // Permanently persist to Administrative Server Database tied to user's wallet address
         if (walletAddress) {
-          localStorage.setItem('xscout_tg_uid_' + walletAddress, uid);
-          localStorage.setItem('xscout_tg_nickname_' + walletAddress, nickname);
+          fetch('/api/user-telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet: walletAddress, uid: uid })
+          }).catch(console.error);
         }
       }, 1500);
     } else {
@@ -444,13 +443,16 @@ function App() {
                     const isChecked = e.target.checked;
                     setTelegramEnabled(isChecked);
 
-                    // User deliberately turning OFF sync to change accounts -> WIPE ALL CACHE!
+                    // User deliberately turning OFF sync to change accounts -> WIPE DB TG_UID!
                     if (!isChecked) {
                       setTelegramUid('');
                       setTelegramNickname('');
                       if (walletAddress) {
-                        localStorage.removeItem('xscout_tg_uid_' + walletAddress);
-                        localStorage.removeItem('xscout_tg_nickname_' + walletAddress);
+                        fetch('/api/user-telegram', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ wallet: walletAddress, uid: "" })
+                        }).catch(console.error);
                       }
                     }
                   }} 
