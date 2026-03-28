@@ -38,8 +38,11 @@ export class AgenticWalletService {
       'USDC': '0x74b7f16337b8972027f6196a17a631ac6de26d22',
       'USDT': '0x1e4a5963abfd975d8c9021ce480b42188849d41d',
       'WOKB': '0x7a508ba48db39414ca0ea461f349c89ed4bf482e',
+      'OKB': '0x7a508ba48db39414ca0ea461f349c89ed4bf482e',
       'WETH': '0x5a77f1443d16ea5cb3624ce8b1673fe6d52cb627',
-      'WBTC': '0x1a1a5b822d334544eb4b419dbed7ad22ce9cebb8'
+      'ETH': '0x5a77f1443d16ea5cb3624ce8b1673fe6d52cb627',
+      'WBTC': '0x1a1a5b822d334544eb4b419dbed7ad22ce9cebb8',
+      'BTC': '0x1a1a5b822d334544eb4b419dbed7ad22ce9cebb8'
     };
 
     const routerOKX = "0x633513a9bff0ebbafce6ae87f6c321d22791b7be"; // OKX DEX V5 Router trên X Layer (All Lowercase to bypass EIP-55 Checksum strict parsing)
