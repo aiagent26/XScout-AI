@@ -88,8 +88,8 @@ function App() {
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
       
-      // Gửi tiền thật vào Smart Contract Két sắt trên X Layer
-      const vaultAddress = "0xD005792034955aD793d8a5eCaC140616559A9396";
+      // Gửi tiền thật vào Smart Contract Két sắt trên X Layer (Bản V2 Mới Nhất)
+      const vaultAddress = "0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5";
       
       const tx = await signer.sendTransaction({
         to: vaultAddress,

@@ -30,8 +30,8 @@ export class AgenticWalletService {
     const privateKey = process.env.AI_AGENT_PRIVATE_KEY || process.env.VITE_MAINNET_PRIVATE_KEY || '';
     const agentWallet = new ethers.Wallet(privateKey, provider);
 
-    // KẾT NỐI VÀO SMART CONTRACT VỪA DEPLOY!
-    const contractAddress = "0xD005792034955aD793d8a5eCaC140616559A9396";
+    // KẾT NỐI VÀO SMART CONTRACT V2 VỪA DEPLOY!
+    const contractAddress = "0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5";
     
     try {
       // Đọc ABI trực tiếp bằng Cú pháp Human-Readable (Vượt rào lỗi mất File Artifact trên VPS Cloud)
