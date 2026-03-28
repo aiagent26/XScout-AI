@@ -342,8 +342,17 @@ function App() {
             <div className="billing-amount">
               ${x402Fee.toFixed(2)} <span>USDC</span>
             </div>
-            <div style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 4}}>
-              {t.leftPanel.billingSub}
+            <div style={{
+              fontSize: '0.75rem', 
+              color: '#ff9900', 
+              marginTop: '10px', 
+              background: 'rgba(255,153,0,0.05)', 
+              padding: '8px', 
+              borderRadius: '6px',
+              border: '1px solid rgba(255,153,0,0.2)',
+              lineHeight: '1.4'
+            }}>
+              <strong>⚠️ Chú ý (Fee Policy):</strong> Phí x402 này đang được <strong>Ghi Nợ</strong> do lệnh chưa có lãi. Sau khi Lệnh giao dịch chiến thắng, Hệ thống sẽ tự động Khấu trừ toàn bộ hoặc 1 phần (nếu lãi không đủ trả fee). Kế toán Admin kiểm soát tuyệt đối.
             </div>
           </div>
 
