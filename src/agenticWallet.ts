@@ -59,21 +59,28 @@ export class AgenticWalletService {
       console.log(`\n⏳ Validating Authentic Protocol Paths... Router: ${routerOKX}, from: ${tokenIn}, to: ${tokenOut}`);
       const amountWei = ethers.parseEther(amount.toString());
 
-      // MÓC NỐI TRỰC TIẾP VÀO BLOCKCHAIN X LAYER: KIỂM TRA SỐ DƯ TÀI SẢN (USDC/USDT/...) CỦA KÉT SẮT TRƯỚC KHI TRADE
-      const erc20Abi = ["function balanceOf(address owner) view returns (uint256)"];
-      const tokenContract = new ethers.Contract(tokenIn, erc20Abi, provider);
-      
-      console.log(`🕵🏻 Thực hiện Query Onchain quét số dư của Két Sắt: Vault [${contractAddress}]...`);
+      // MÓC NỐI TRỰC TIẾP VÀO BLOCKCHAIN X LAYER: KIỂM TRA SỐ DƯ TÀI SẢN BẢO CHỨNG TRƯỚC KHI TRADE
       let vaultTokenBalanceInfo = 0n;
-      try {
-          vaultTokenBalanceInfo = await tokenContract.balanceOf(contractAddress);
-      } catch (err: any) {
-          console.log(`⚠️ Warning: Token In [${tokenIn}] returned BAD_DATA on RPC Node (No bytecode found). Defaulting balance evaluation to 0.`);
-          vaultTokenBalanceInfo = 0n;
+      
+      // Phân Loại Rạch Ròi Hạt Nhân: Đồng OKB Mẹ (Native L2) vs Token Phụ (ERC20: USDC, BTC)
+      if (fromToken.toUpperCase() === 'OKB' || fromToken.toUpperCase() === 'WOKB') {
+          console.log(`🕵🏻 Thực hiện Phân Tích Onchain Rẽ Nuôi Quét số dư NATIVE OKB Nguyên Thủy của Két Sắt [${contractAddress}]...`);
+          vaultTokenBalanceInfo = await provider.getBalance(contractAddress);
+      } else {
+          const erc20Abi = ["function balanceOf(address owner) view returns (uint256)"];
+          const tokenContract = new ethers.Contract(tokenIn, erc20Abi, provider);
+          console.log(`🕵🏻 Thực hiện Phân Tích Onchain Quét số dư ERC20 Token [${tokenIn}] của Két Sắt [${contractAddress}]...`);
+          try {
+              vaultTokenBalanceInfo = await tokenContract.balanceOf(contractAddress);
+          } catch (err: any) {
+              console.log(`⚠️ Warning: Token In [${tokenIn}] returned BAD_DATA on RPC Node (No bytecode found). Defaulting balance evaluation to 0.`);
+              vaultTokenBalanceInfo = 0n;
+          }
       }
 
       if (vaultTokenBalanceInfo < amountWei) {
-          throw new Error(`Insufficient Token Capital Delegated to Vault Smart Contract. Requested: ${amount} ${fromToken.toUpperCase()}, but Onchain Vault Balance holds exactly 0.0 ${fromToken.toUpperCase()}`);
+          const formattedVaultBalance = ethers.formatEther(vaultTokenBalanceInfo);
+          throw new Error(`Insufficient Token Capital Delegated to Vault Smart Contract. Requested: ${amount} ${fromToken.toUpperCase()}, but Onchain Vault Balance holds exactly ${Number(formattedVaultBalance).toFixed(4)} ${fromToken.toUpperCase()}`);
       }
 
       const tx = await guardContract.executeAITrade(
