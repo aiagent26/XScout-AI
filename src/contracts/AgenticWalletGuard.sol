@@ -112,9 +112,13 @@ contract AgenticWalletGuard {
         address pair = IDexFactory(factory).getPair(tokenIn, tokenOut);
         require(pair != address(0), "Token Chua Niem Yet: Khong tim thay Pool Giao dich Tren San!");
 
-        // 🚀 CHỐNG RUG PULL (HỒ BƠI CẠN NƯỚC BỊ RÚT THANH KHOẢN)
+        // 🚀 KIỂM SOÁT ĐỘ SÂU THANH KHOẢN HẠNG NẶNG (LIQUIDITY DEPTH SHIELD - Yêu cầu CPO)
+        // Bắt buộc Hồ Bơi phải có dung lượng Giao dịch lớn hơn 10.000 Token (Chống Cạn Cung / Scam hẹp)
         (uint112 reserve0, uint112 reserve1, ) = IDexPair(pair).getReserves();
-        require(reserve0 > 0 && reserve1 > 0, "Bao dong do Rug Pull: Thanh khoan Pool bang Khong!");
+        require(
+            reserve0 >= 10000 * 10**18 || reserve1 >= 10000 * 10**18, 
+            "Loi: Thanh khoan qua mong (Duoi 10.000 Tokens)! Chặn dung bot AI rui ro cao."
+        );
 
         // Ràng buộc 2: Chặn lệnh xả rác liên tục / Rút ruột GasFee (Velocity Limit)
         require(block.timestamp >= lastTradeTimestamp + TRADE_COOLDOWN, "AI dang spam hoac bi loi, can Time Cooldown giua 2 lenh");
