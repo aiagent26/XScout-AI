@@ -41,8 +41,8 @@ export class AgenticWalletService {
       const guardContract = new ethers.Contract(contractAddress, HUMAN_ABI, agentWallet);
 
       console.log(`\n⏳ Pushing live Execution payload onto X Layer Blockchain... Listening to Mempool heartbeat...`);
-      // Fake các tham số Token để test chức năng Revert của Smart Contract bảo vệ
-      const dummyRouter = "0x1111111254EXOKXDEXROUTER"; // OKX Router ảo
+      // Fake các tham số Token để test chức năng Revert của Smart Contract bảo vệ (PHẢI DÙNG HEX CHUẨN ĐỂ TRÁNH LỖI ENS RESOLVER TRÊN ETHERS V6)
+      const dummyRouter = "0x1111111111111111111111111111111111111111"; // OKX Router ảo
       const dummyTokenIn = "0x2222222222222222222222222222222222222222";
       const dummyTokenOut = "0x3333333333333333333333333333333333333333";
       const amountWei = ethers.parseEther(amount.toString());
