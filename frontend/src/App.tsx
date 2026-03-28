@@ -298,8 +298,8 @@ function App() {
     <div className="app-layout">
       <div className="top-nav">
         <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
-          <h1 className="brand-title" style={{fontSize: '1.2rem', margin: 0}}>
-             <span className="status-dot"></span> XScout AI
+          <h1 className="brand-title" style={{fontSize: '1.2rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px'}}>
+             <img src="/favicon.png" alt="XScout Logo" style={{width: '24px', height: '24px', borderRadius: '4px'}} /> XScout AI
           </h1>
           <select 
             value={lang} 
@@ -318,7 +318,21 @@ function App() {
             <option value="en">🌐 English (EN)</option>
             <option value="zh">🌐 简体中文 (ZH)</option>
           </select>
+          
+          {/* Trust & Credibility Marks */}
+          <div style={{ display: 'none', '@media(min-width: 768px)': { display: 'flex' }, gap: '15px', alignItems: 'center', paddingLeft: '10px', borderLeft: '1px solid rgba(255,255,255,0.1)' } as any}>
+            <a href="https://www.okx.com/explorer/xlayer/address/0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5" target="_blank" rel="noreferrer" style={{color: 'var(--accent-green)', textDecoration: 'none', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0,255,136,0.1)', padding: '4px 8px', borderRadius: '4px'}}>
+              🛡️ Verified Contract
+            </a>
+            <a href="https://github.com/aiagent26/XScout-AI" target="_blank" rel="noreferrer" style={{color: '#fff', textDecoration: 'none', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.8}} title="Source Code">
+              💻 GitHub
+            </a>
+            <a href="https://www.loom.com/share/80f9b649fd9f4c75b2908e77d4cf0272" target="_blank" rel="noreferrer" style={{color: '#ff4b4b', textDecoration: 'none', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.8}} title="Watch Demo">
+              🎬 Video Demo
+            </a>
+          </div>
         </div>
+
         <div className="nav-tabs">
           <button className={`nav-tab ${currentView === 'terminal' ? 'active' : ''}`} onClick={() => setCurrentView('terminal')}>{t.nav.terminal}</button>
           <button className={`nav-tab ${currentView === 'guide' ? 'active' : ''}`} onClick={() => setCurrentView('guide')}>{t.nav.guide}</button>
