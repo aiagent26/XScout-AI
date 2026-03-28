@@ -320,7 +320,7 @@ function App() {
           </select>
           
           {/* Trust & Credibility Marks */}
-          <div style={{ display: 'none', '@media(min-width: 768px)': { display: 'flex' }, gap: '15px', alignItems: 'center', paddingLeft: '10px', borderLeft: '1px solid rgba(255,255,255,0.1)' } as any}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', paddingLeft: '10px', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
             <a href="https://www.okx.com/explorer/xlayer/address/0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5" target="_blank" rel="noreferrer" style={{color: 'var(--accent-green)', textDecoration: 'none', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0,255,136,0.1)', padding: '4px 8px', borderRadius: '4px'}}>
               🛡️ Verified Contract
             </a>
