@@ -196,14 +196,16 @@ function App() {
       let nickname = `@agent_${uid.slice(-4)}`;
       
       try {
-        // Truy vấn trực tiếp API Telegram để lấy tên thật / Username thật của người dùng
-        const res = await fetch(`https://api.telegram.org/bot8782510741:AAF2WquEq8nfra-azsHbBFk0nN8Ot5o8hzU/getChat?chat_id=${uid}`);
-        const data = await res.json();
-        if (data.ok && data.result) {
-          nickname = data.result.username ? `@${data.result.username}` : data.result.first_name;
+        // Bảo mật tối đa: Gửi ngay UID sang Máy Chủ Backend thay vì ném Token lọt ra Giao Diện Trình Duyệt
+        if (walletAddress) {
+          await fetch('/api/user-telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet: walletAddress, uid: uid })
+          });
         }
       } catch(e) {
-        console.error("Lỗi getChat Telegram", e);
+        console.error("Lỗi cập nhật Telegram UID Backend", e);
       }
 
       setTimeout(() => {
@@ -213,15 +215,6 @@ function App() {
         setTelegramNickname(nickname);
         setTelegramInput('');
         setIsExecuting(false);
-
-        // Permanently persist to Administrative Server Database tied to user's wallet address
-        if (walletAddress) {
-          fetch('/api/user-telegram', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ wallet: walletAddress, uid: uid })
-          }).catch(console.error);
-        }
       }, 1500);
     } else {
       alert("Vui lòng nhập Telegram UID hợp lệ (chỉ bao gồm số). / Please enter a valid Telegram ID.");
