@@ -18,3 +18,21 @@ An Agentic Wallet Autonomy + x402 Protocol solution for the Web3 Hackathon.
 4. Run `npx ts-node src/botListener.ts` to start the Telegram polling agent (Requires Node.js and TypeScript).
 
 > *"Let machines pay machines. Onchain OS empowers XScout to be a true autonomous corporate entity on the X Layer ecosystem."*
+
+---
+
+## 💎 XScout Tokenomics & Revenue Model (Zero-Risk Deferred Fees)
+
+The XScout AI economic flywheel is designed entirely around the **High-Water Mark Performance Matrix**, shielding users from arbitrary Web2 SaaS subscription traps:
+
+1. **Initial Gas Deposit (0.002 OKB):** 
+   Upon first connecting the Web3 Wallet, the Smart Contract Vault requires a trivial `0.002 OKB` network bridge. This strictly serves to fund On-Chain L2 base-layer signatures (Mempool Gas) and operates as a baseline Sybil-attack & spam filter against the AI engines.
+   
+2. **Deferred Inference Debt (x402 Pay-as-you-go):** 
+   Every Multi-Agent prompt inference dynamically burns the TEE server CPU. We charge **$0.03 USDC** per executed prompt. However, users are **NOT** billed upfront! Instead, this microscopic fee is added to an Off-Chain "Unpaid Debt Ledger", ensuring $0 risk to the initial trading capital during operations. 
+   
+3. **Automated Profit Deduction (1% Performance Fee):**
+   A trade is singularly classified as *"Profitable"* when the AI Agent closes a position (Swap/Unstake) resulting in a definitively higher USDC valuation relative to entry point. Upon sensing this algorithmic triumph, the Smart Contract Vault surgically skims:
+   - **1% Agent Commission (Treasury Growth)** 
+   - **Lifetime Unpaid x402 Debt Replenishment (API Recoup)**
+   *The AI agent algorithmically swaps this precise deduction natively into the XScout Treasury Module prior to funneling the monolithic net profit back into the user's custody.*

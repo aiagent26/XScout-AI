@@ -28,9 +28,9 @@ app.post('/api/trade', async (req: any, res: any) => {
         const { prompt, wallet } = req.body;
         console.log(`\n[API ENTRY] Received Live Frontend Prompt: ${prompt}`);
 
-        // Ghi Nợ X402 Dữ liệu vào Database Kế Toán (Mức Cước: $0.05 / Lệnh Chat AI)
+        // Ghi Nợ X402 Dữ liệu vào Database Kế Toán (Mức Cước: $0.03 / Lệnh Chat AI)
         if (wallet) {
-            recordInferenceCost(wallet, 0.05);
+            recordInferenceCost(wallet, 0.03);
         }
 
         // 1. Ground Truth Metrics (Tapping Market Live Oracle logic proxy)
