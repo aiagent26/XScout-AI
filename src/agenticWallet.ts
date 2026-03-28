@@ -64,7 +64,13 @@ export class AgenticWalletService {
       const tokenContract = new ethers.Contract(tokenIn, erc20Abi, provider);
       
       console.log(`🕵🏻 Thực hiện Query Onchain quét số dư của Két Sắt: Vault [${contractAddress}]...`);
-      const vaultTokenBalanceInfo = await tokenContract.balanceOf(contractAddress);
+      let vaultTokenBalanceInfo = 0n;
+      try {
+          vaultTokenBalanceInfo = await tokenContract.balanceOf(contractAddress);
+      } catch (err: any) {
+          console.log(`⚠️ Warning: Token In [${tokenIn}] returned BAD_DATA on RPC Node (No bytecode found). Defaulting balance evaluation to 0.`);
+          vaultTokenBalanceInfo = 0n;
+      }
 
       if (vaultTokenBalanceInfo < amountWei) {
           throw new Error(`Insufficient Token Capital Delegated to Vault Smart Contract. Requested: ${amount} ${fromToken.toUpperCase()}, but Onchain Vault Balance holds exactly 0.0 ${fromToken.toUpperCase()}`);
