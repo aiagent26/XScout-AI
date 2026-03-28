@@ -22,6 +22,7 @@ function App() {
   const [prompt, setPrompt] = useState(t.leftPanel.p1Val);
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [depositAmount, setDepositAmount] = useState('0.1');
   const [x402Fee, setx402Fee] = useState(0.00);
   const [walletConnected, setWalletConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -80,12 +81,25 @@ function App() {
       return;
     }
     
+    if (isNaN(Number(depositAmount)) || Number(depositAmount) <= 0) {
+      alert("Vui lòng nhập số tiền hợp lệ!");
+      return;
+    }
+
     setIsExecuting(true);
     setLogs([]);
-    addLog('system', "Awaiting User Metamask Signature to Deposit 0.0001 OKB/ETH into Vault...");
+    addLog('system', `Awaiting User Metamask Signature to Deposit ${depositAmount} Native Token into Vault...`);
     
     try {
       const provider = new ethers.BrowserProvider((window as any).ethereum);
+      
+      // AUTO-SWITCH NETWORK: Yêu cầu chuyển sang X Layer Mainnet nếu User đang ở nhầm mạng (Thường gây lỗi revert Metamask)
+      try {
+        await provider.send("wallet_switchEthereumChain", [{ chainId: "0xc4" }]); // 196 = 0xc4 in Hex (X Layer Mainnet)
+      } catch (switchError: any) {
+        addLog('system', `[Network Constraint] Please manually switch Metamask to X Layer Mainnet to deposit into this Vault.`);
+      }
+
       const signer = await provider.getSigner();
       
       // Gửi tiền thật vào Smart Contract Két sắt trên X Layer (Bản V2 Mới Nhất)
@@ -93,13 +107,13 @@ function App() {
       
       const tx = await signer.sendTransaction({
         to: vaultAddress,
-        value: ethers.parseEther("0.0001")
+        value: ethers.parseEther(depositAmount)
       });
       
       addLog('system', `[Vault Deposit] Broadcasting Transaction to Mempool: ${tx.hash}`);
       await tx.wait(); // Chờ Mạng lưới xác nhận Block
       
-      addLog('security', "✅ FUNDING CONFIRMED: 0.0001 OKB successfully Delegated to Agentic Smart Contract Vault constraints!");
+      addLog('security', `✅ FUNDING CONFIRMED: ${depositAmount} Native Asset successfully Delegated to Agentic Smart Contract Vault constraints!`);
     } catch (e: any) {
       addLog('system', `[Vault Deposit] User Canceled or Transaction Failed: ${e.message}`);
     } finally {
@@ -243,14 +257,23 @@ function App() {
             </button>
             
             {walletConnected && (
-              <button 
-                className="bws-btn" 
-                onClick={handleDeposit} 
-                disabled={isExecuting}
-                style={{ background: 'rgba(255, 153, 0, 0.1)', borderColor: '#ff9900', color: '#ff9900', fontSize: '0.85rem' }}
-              >
-                💰 Deposit 0.0001 OKB (Delegate to Vault)
-              </button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'rgba(255, 153, 0, 0.05)', padding: '5px', borderRadius: '8px' }}>
+                <input 
+                  type="number" 
+                  value={depositAmount} 
+                  onChange={(e) => setDepositAmount(e.target.value)} 
+                  disabled={isExecuting}
+                  style={{ width: '80px', background: 'transparent', border: '1px solid rgba(255,153,0,0.5)', color: '#fff', padding: '8px', borderRadius: '4px', outline: 'none' }}
+                />
+                <button 
+                  className="bws-btn" 
+                  onClick={handleDeposit} 
+                  disabled={isExecuting}
+                  style={{ flex: 1, background: 'rgba(255, 153, 0, 0.1)', borderColor: '#ff9900', color: '#ff9900', fontSize: '0.85rem', margin: 0 }}
+                >
+                  💰 Delegate Capital (X Layer)
+                </button>
+              </div>
             )}
           </div>
 
