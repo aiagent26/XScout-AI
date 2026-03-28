@@ -28,6 +28,7 @@ function App() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [vaultBalance, setVaultBalance] = useState('0.0000');
+  const [totalDebt, setTotalDebt] = useState('0.00');
   const vaultAddress = "0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5"; // X Layer Vault V2
   const [telegramEnabled, setTelegramEnabled] = useState(false);
   const [telegramUid, setTelegramUid] = useState('');
@@ -64,6 +65,18 @@ function App() {
     }
   };
 
+  const fetchUserDebt = async (wallet: string) => {
+    try {
+      const resp = await fetch(`/api/user-debt/${wallet}`);
+      const data = await resp.json();
+      if (data.success && data.debt !== undefined) {
+        setTotalDebt(Number(data.debt).toFixed(2));
+      }
+    } catch (e) {
+      console.error("Failed to fetch User Debt", e);
+    }
+  };
+
   const handleWalletClick = async () => {
     if (walletConnected) {
       setWalletConnected(false);
@@ -81,6 +94,7 @@ function App() {
             setWalletAddress(accounts[0]);
             setWalletConnected(true);
             await fetchVaultBalance(); // Tải số dư Két
+            await fetchUserDebt(accounts[0]); // Tải Kế toán Nợ
           }
         } else {
           alert("PLEASE INSTALL METAMASK OR OKX WEB3 WALLET EXTENSION TO PROCEED!");
@@ -195,7 +209,7 @@ function App() {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt })
+        body: JSON.stringify({ prompt: prompt, wallet: walletAddress })
       });
       
       const realData = await response.json();
@@ -215,9 +229,10 @@ function App() {
            setx402Fee(0.03);
         }, 3000);
 
-        setTimeout(() => {
+        setTimeout(async () => {
            addLog('system', `EXECUTION VERDICT (TEE Onchain System):\nStatus: ${realData.status}\nBlock Hash Receipt: ${realData.txHash}`);
            setIsExecuting(false);
+           if (walletAddress) await fetchUserDebt(walletAddress); // Update Database Debt Post Execution
         }, 4500);
       } else {
         addLog('system', `SYSTEM FAILURE! API Gateway Crumbled: ${realData.error}`);
@@ -342,6 +357,16 @@ function App() {
             <div className="billing-amount">
               ${x402Fee.toFixed(2)} <span>USDC</span>
             </div>
+            
+            {walletConnected && (
+            <div style={{ marginTop: '8px', padding: '8px', background: 'rgba(255, 50, 50, 0.05)', borderRadius: '6px', border: '1px solid rgba(255, 50, 50, 0.2)'}}>
+              <div style={{color: 'var(--text-secondary)', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <span>🏦 Unpaid Debt:</span>
+                <strong style={{color: '#ff4d4d', fontSize: '1rem'}}>${totalDebt} USDC</strong>
+              </div>
+            </div>
+            )}
+
             <div style={{
               fontSize: '0.75rem', 
               color: '#ff9900', 
@@ -352,7 +377,7 @@ function App() {
               border: '1px solid rgba(255,153,0,0.2)',
               lineHeight: '1.4'
             }}>
-              <strong>⚠️ Chú ý (Fee Policy):</strong> Phí x402 này đang được <strong>Ghi Nợ</strong> do lệnh chưa có lãi. Sau khi Lệnh giao dịch chiến thắng, Hệ thống sẽ tự động Khấu trừ toàn bộ hoặc 1 phần (nếu lãi không đủ trả fee). Kế toán Admin kiểm soát tuyệt đối.
+              <strong>⚠️ Fee Policy:</strong> The x402 session fee is recorded as <strong>Debt</strong> (Zero Risk). It will be automatically deducted (fully or partially) ONLY from your future algorithmic trade profits. Admin ledger controls enforcement.
             </div>
           </div>
 

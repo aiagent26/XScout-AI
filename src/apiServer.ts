@@ -6,6 +6,7 @@ import path from 'path';
 import { DebateCouncil } from './agent/debate';
 import { AgenticWalletService } from './agenticWallet';
 import { TelegramService } from './telegramAlerts';
+import { getUserInfo, recordInferenceCost } from './feeAccounting';
 
 dotenv.config();
 
@@ -16,10 +17,21 @@ app.use(express.json());
 // 🔀 PHỤC VỤ TRỰC TIẾP FILE GIAO DIỆN REACT (PRODUCTION BUILDS)
 app.use(express.static(path.join(process.cwd(), 'frontend/dist')));
 
+app.get('/api/user-debt/:wallet', (req: any, res: any) => {
+    const wallet = req.params.wallet;
+    const info = getUserInfo(wallet);
+    res.json({ success: true, debt: info ? info.totalUnpaidDebtUsdc : 0 });
+});
+
 app.post('/api/trade', async (req: any, res: any) => {
     try {
-        const { prompt } = req.body;
+        const { prompt, wallet } = req.body;
         console.log(`\n[API ENTRY] Received Live Frontend Prompt: ${prompt}`);
+
+        // Ghi Nợ X402 Dữ liệu vào Database Kế Toán (Mức Cước: $0.05 / Lệnh Chat AI)
+        if (wallet) {
+            recordInferenceCost(wallet, 0.05);
+        }
 
         // 1. Ground Truth Metrics (Tapping Market Live Oracle logic proxy)
         const tokenMarketMock = "OKX DEX API: Current asset analysis context retrieved. Liquidity sufficient.";

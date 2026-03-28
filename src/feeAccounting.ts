@@ -91,3 +91,17 @@ export function deductFeeFromProfit(walletAddress: string, profitUsdc: number) {
         console.error("Lỗi khi Khấu trừ Database Kế Toán Admin:", e);
     }
 }
+
+/**
+ * Hàm lấy Thông tin Nợ / Lãi của User (Dùng để đưa lên UI Bảng Theo Dõi Khách)
+ */
+export function getUserInfo(walletAddress: string): UserAccountInfo | null {
+    if (!walletAddress) return null;
+    initDB();
+    try {
+        const data = JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
+        return data[walletAddress] || null;
+    } catch {
+        return null;
+    }
+}
