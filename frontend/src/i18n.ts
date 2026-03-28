@@ -86,7 +86,12 @@ export const translations = {
       s6A1Code: "emergencyWithdraw()",
       s6A1Close: " native onchain to pull 100% funds bypassing UI.",
       s6Q2: "❓ Q: Can AI hallucinate and ignore my -5% Stop Loss?",
-      s6A2: "👉 A: IMPOSSIBLE. The -5% SL is locked inside the \"Smart Contract Bounds\". Even if AI hallucinates, the smart contract forces the sell at -5% to preserve capital."
+      s6A2: "👉 A: IMPOSSIBLE. The -5% SL is locked inside the \"Smart Contract Bounds\". Even if AI hallucinates, the smart contract forces the sell at -5% to preserve capital.",
+      s7Title: "7. Understanding Execution Statuses",
+      s7P1: "When the XScout AI Council finishes debating, it arrives at an executing verdict. Here is what the final statuses mean:",
+      s7L1: "🟢 <strong>Executed Onchain Successfully</strong>: The trade was fully approved by the AI Judge and securely executed on the X Layer blockchain. You will receive a real TxHash.",
+      s7L2: "🟡 <strong>N/A - Execution Aborted by AI Council</strong>: The AI prevented you from making a bad trade! If the slippage is too high, the liquidity is too low, or the fees outweigh the potential profit, the Bear Agent will veto your intent to protect your capital. No gas is spent.",
+      s7L3: "🔴 <strong>Execution Failed / Reverted by Onchain Restrictions</strong>: The AI approved your trade, but the X Layer Smart Contract blocked it. This happens if your Vault <strong>lacks sufficient capital</strong>, or if the DEX Router isn't strictly whitelisted. This provides 100% rigorous cryptographically-secured safety."
     }
   },
   zh: {
@@ -174,7 +179,12 @@ export const translations = {
       s6A1Code: "emergencyWithdraw()",
       s6A1Close: " 立即不经 UI 提取资金。",
       s6Q2: "❓ 问：AI 会出现幻觉并忽略我 -5% 的止损吗？",
-      s6A2: "👉 答：不可能。-5% 止损参数被硬编码锁定在“智能合约边界”中。即使 AI 幻觉，智能合约也会强制锁定。"
+      s6A2: "👉 答：不可能。-5% 止损参数被硬编码锁定在“智能合约边界”中。即使 AI 幻觉，智能合约也会强制锁定。",
+      s7Title: "7. 理解终端执行状态 (Execution Statuses)",
+      s7P1: "当 XScout AI 委员会完成辩论后，终端会输出执行裁决。以下是各种最终状态的实际含义：",
+      s7L1: "🟢 <strong>Executed Onchain Successfully (链上执行成功)</strong>: 交易被 AI 法官完全批准，并在 X Layer 区块链上安全执行。您将直接收到真实的 TxHash。",
+      s7L2: "🟡 <strong>N/A - Execution Aborted by AI Council (被 AI 委员中止)</strong>: 恭喜，AI 成功阻止了您进行一笔高风险交易！如果滑点过高、流动性过低，或者手续费超过潜在利润，看跌实体 (Bear Agent) 将否决您的意图以保护资本。系统不消耗任何手续费。",
+      s7L3: "🔴 <strong>Execution Failed / Reverted (执行失败 / 链上拦截)</strong>: AI 批准了交易，但被 X Layer 智能合约强行拦截！如果您金库中的 <strong>资金余额不足</strong>，或者该代币的交易路由未被合约列入白名单，系统会严格在链上层面阻断交易以确保 100% 的绝对资金安全。"
     }
   }
 };

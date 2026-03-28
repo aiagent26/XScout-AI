@@ -90,6 +90,17 @@ export default function Guide({ onNavigate, lang }: GuideProps) {
           <p>{t.s6A2}</p>
         </div>
       </div>
+
+      <div className="guide-section">
+        <h3>{t.s7Title}</h3>
+        <p>{t.s7P1}</p>
+        <ul className="guide-list">
+          <li dangerouslySetInnerHTML={{ __html: t.s7L1 }} />
+          <li dangerouslySetInnerHTML={{ __html: t.s7L2 }} />
+          <li dangerouslySetInnerHTML={{ __html: t.s7L3 }} />
+        </ul>
+      </div>
+
     </div>
   );
 }
