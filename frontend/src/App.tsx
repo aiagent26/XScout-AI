@@ -330,6 +330,9 @@ function App() {
             <a href="https://www.loom.com/share/80f9b649fd9f4c75b2908e77d4cf0272" target="_blank" rel="noreferrer" style={{color: '#ff4b4b', textDecoration: 'none', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.8}} title="Watch Demo">
               🎬 Video Demo
             </a>
+            <a href="https://t.me/+uU8NyiRADlY2OTdl" target="_blank" rel="noreferrer" style={{color: '#00a8ff', textDecoration: 'none', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.8}} title="Telegram Community">
+              ✈️ Community
+            </a>
           </div>
         </div>
 
