@@ -131,7 +131,25 @@ function App() {
         try {
           await provider.send("wallet_switchEthereumChain", [{ chainId: "0xc4" }]); // X Layer Mainnet Hex
         } catch (switchError: any) {
-          throw new Error("NETWORK CONSTRAINT: You MUST switch your Metamask to X Layer Mainnet to securely deposit Native OKB into the Vault. Transaction Aborted.");
+          // Lỗi 4902 của Metamask: Mạng lưới CHƯA TỪNG tồn tại trong ví người dùng (Chưa từng Add Network)
+          if (switchError.code === 4902 || switchError?.info?.error?.code === 4902 || (switchError.message && switchError.message.includes('4902'))) {
+            addLog('system', `X Layer Network not found in Wallet. Initiating Automatic Network Addition...`);
+            try {
+              await provider.send("wallet_addEthereumChain", [
+                {
+                  chainId: "0xc4",
+                  chainName: "X Layer Mainnet",
+                  nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 },
+                  rpcUrls: ["https://xlayerrpc.okx.com"],
+                  blockExplorerUrls: ["https://www.okx.com/explorer/xlayer"]
+                }
+              ]);
+            } catch (addError) {
+              throw new Error("NETWORK CONSTRAINT: Cannot automatically append X Layer to your Metamask. Manual addition required. Aborting.");
+            }
+          } else {
+            throw new Error("NETWORK CONSTRAINT: You MUST switch your Metamask to X Layer Mainnet to securely deposit Native OKB into the Vault. Transaction Aborted.");
+          }
         }
       }
 
