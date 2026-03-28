@@ -60,6 +60,20 @@ contract AgenticWalletGuard {
         owner = newColdWallet;
     }
 
+    // --- BỘ CÔNG TẮC QUẢN TRỊ CỦA OWNER (QUYẾT ĐỊNH CHO AI ĐƯỢC CHẠY TOKEN NÀO) ---
+    
+    function setWhitelistedRouter(address router, bool status) external onlyOwner {
+        whitelistedDexRouters[router] = status;
+    }
+
+    function setApprovedToken(address token, bool status) external onlyOwner {
+        approvedTokens[token] = status;
+    }
+
+    function setApprovedDeFiProtocol(address protocol, bool status) external onlyOwner {
+        approvedDeFiProtocols[protocol] = status;
+    }
+
     /**
      * @dev Đổi ví AI Agent (Cập nhật / Thay thế AI).
      * Dùng khi ví AI cũ bị lộ Private Key trên Server. Owner gọi hàm này để Phế truất ví AI cũ và gán ví AI mới.
