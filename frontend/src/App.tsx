@@ -82,6 +82,10 @@ function App() {
       setWalletConnected(false);
       setWalletAddress('');
       setVaultBalance('0.0000');
+      // Wipe visual TG states (keep in local storage for later)
+      setTelegramEnabled(false);
+      setTelegramUid('');
+      setTelegramNickname('');
     } else {
       setIsConnecting(true);
       try {
@@ -95,6 +99,15 @@ function App() {
             setWalletConnected(true);
             await fetchVaultBalance(); // Tải số dư Két
             await fetchUserDebt(accounts[0]); // Tải Kế toán Nợ
+
+            // Auto-Bind Saved Telegram Profile Local Storage
+            const savedUid = localStorage.getItem('xscout_tg_uid_' + accounts[0]);
+            const savedNick = localStorage.getItem('xscout_tg_nickname_' + accounts[0]);
+            if (savedUid) {
+              setTelegramEnabled(true);
+              setTelegramUid(savedUid);
+              setTelegramNickname(savedNick || '');
+            }
           }
         } else {
           alert("PLEASE INSTALL METAMASK OR OKX WEB3 WALLET EXTENSION TO PROCEED!");
@@ -204,6 +217,12 @@ function App() {
         setTelegramNickname(nickname);
         setTelegramInput('');
         setIsExecuting(false);
+
+        // Permanently persist to browser cache tied explicitly to this Metamask wallet
+        if (walletAddress) {
+          localStorage.setItem('xscout_tg_uid_' + walletAddress, uid);
+          localStorage.setItem('xscout_tg_nickname_' + walletAddress, nickname);
+        }
       }, 1500);
     } else {
       alert("Vui lòng nhập Telegram UID hợp lệ (chỉ bao gồm số). / Please enter a valid Telegram ID.");
@@ -422,7 +441,18 @@ function App() {
                       alert(lang === 'zh' ? "⚠️ 请先连接 OKX Web3 钱包以防止垃圾邮件滥用！" : "⚠️ Please connect your OKX Web3 Wallet first to prevent spam!");
                       return;
                     }
-                    setTelegramEnabled(e.target.checked);
+                    const isChecked = e.target.checked;
+                    setTelegramEnabled(isChecked);
+
+                    // User deliberately turning OFF sync to change accounts -> WIPE ALL CACHE!
+                    if (!isChecked) {
+                      setTelegramUid('');
+                      setTelegramNickname('');
+                      if (walletAddress) {
+                        localStorage.removeItem('xscout_tg_uid_' + walletAddress);
+                        localStorage.removeItem('xscout_tg_nickname_' + walletAddress);
+                      }
+                    }
                   }} 
                 />
                 <span className="slider round"></span>
