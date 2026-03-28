@@ -98,17 +98,27 @@ app.post('/api/trade', async (req: any, res: any) => {
                 txHash = "N/A - Reverted by Onchain Restrictions";
                 actionStatus = `Execution Failed: ${err.message}`;
             }
+        } else {
+            console.log(`\n🛑 AI Guardrail Veto: Execution aborted internally. Judge Agent deemed the trade too high-risk or mathematically unprofitable.`);
+        }
 
-            // Bắn Thông báo về đúng Nhạc Điện Thoại của Chủ Nhân Ví
-            const telegram = new TelegramService();
-            const userInfo = getUserInfo(wallet);
-            const targetTelegramID = (userInfo && userInfo.telegramUid) 
-                                      ? userInfo.telegramUid 
-                                      : process.env.TEST_USER_TELEGRAM_ID;
-                                      
-            if (targetTelegramID) {
-                await telegram.sendAlert(targetTelegramID, `🟢 <b>XScout Live Execution Alert</b>\n\n- <b>Status:</b> ${actionStatus}\n- <b>Action:</b> SWAP ${debateResult.finalDecision.amount} ${debateResult.finalDecision.from} -> ${debateResult.finalDecision.to}\n- <b>TxHash:</b> <code>${txHash}</code>\n\n📝 <b>AI Agent Rationale:</b>\n${debateResult.finalDecision.explanation}`);
-            }
+        // Bắn Thông báo về đúng Nhạc Điện Thoại của Chủ Nhân Ví (Cả khi Swap / Cancel / Lỗi)
+        const telegram = new TelegramService();
+        const userInfo = getUserInfo(wallet);
+        const targetTelegramID = (userInfo && userInfo.telegramUid) 
+                                  ? userInfo.telegramUid 
+                                  : process.env.TEST_USER_TELEGRAM_ID;
+                                  
+        if (targetTelegramID) {
+            let statusIcon = "🟡"; // Vàng nếu Cancel
+            if (actionStatus.includes("Failed")) statusIcon = "🔴"; // Đỏ nếu Lỗi Onchain
+            if (actionStatus.includes("Successfully")) statusIcon = "🟢"; // Xanh nếu Chạy Ngon
+
+            const actionStr = debateResult.finalDecision.action === "SWAP" 
+                              ? `SWAP ${debateResult.finalDecision.amount || ''} ${debateResult.finalDecision.from || ''} ➡ ${debateResult.finalDecision.to || ''}`
+                              : `CANCELLED (Vetoed Intent)`;
+
+            await telegram.sendAlert(targetTelegramID, `${statusIcon} <b>XScout Live Execution Alert</b>\n\n- <b>Status:</b> ${actionStatus}\n- <b>Action:</b> ${actionStr}\n- <b>TxHash:</b> <code>${txHash}</code>\n\n📝 <b>AI Agent Rationale:</b>\n${debateResult.finalDecision.explanation}`);
         }
 
         res.json({
