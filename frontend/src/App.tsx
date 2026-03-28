@@ -361,24 +361,25 @@ function App() {
             {walletConnected && (
             <div style={{ marginTop: '8px', padding: '8px', background: 'rgba(255, 50, 50, 0.05)', borderRadius: '6px', border: '1px solid rgba(255, 50, 50, 0.2)'}}>
               <div style={{color: 'var(--text-secondary)', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <span>🏦 Unpaid Debt:</span>
+                <span>{t.leftPanel.unpaidDebt}</span>
                 <strong style={{color: '#ff4d4d', fontSize: '1rem'}}>${totalDebt} USDC</strong>
               </div>
             </div>
             )}
 
-            <div style={{
-              fontSize: '0.75rem', 
-              color: '#ff9900', 
-              marginTop: '10px', 
-              background: 'rgba(255,153,0,0.05)', 
-              padding: '8px', 
-              borderRadius: '6px',
-              border: '1px solid rgba(255,153,0,0.2)',
-              lineHeight: '1.4'
-            }}>
-              <strong>⚠️ Fee Policy:</strong> The x402 session fee is recorded as <strong>Debt</strong> (Zero Risk). It will be automatically deducted (fully or partially) ONLY from your future algorithmic trade profits. Admin ledger controls enforcement.
-            </div>
+            <div 
+              style={{
+                fontSize: '0.75rem', 
+                color: '#ff9900', 
+                marginTop: '10px', 
+                background: 'rgba(255,153,0,0.05)', 
+                padding: '8px', 
+                borderRadius: '6px',
+                border: '1px solid rgba(255,153,0,0.2)',
+                lineHeight: '1.4'
+              }}
+              dangerouslySetInnerHTML={{ __html: t.leftPanel.feePolicyInfo }}
+            />
           </div>
 
           <div className="telegram-widget">
