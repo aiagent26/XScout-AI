@@ -153,12 +153,16 @@ function App() {
         }
       }
 
-      const signer = await provider.getSigner();
+      // Re-sync Provider Cache TRƯỚC KHI ký Lệnh (Bắt buộc vì Ethers v6 Cache mạng cũ sau khi Switch/Add Network)
+      const activeProvider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await activeProvider.getSigner();
       
       // Gửi tiền thật vào Smart Contract Két sắt trên X Layer (Bản V2 Mới Nhất)
+      // Đi kèm Limit Gas tĩnh: 28000 nhằm Triệt hạ triệt để Node RPC bắt Lỗi estimateGas (CALL_EXCEPTION)
       const tx = await signer.sendTransaction({
         to: vaultAddress,
-        value: ethers.parseEther(depositAmount)
+        value: ethers.parseEther(depositAmount),
+        gasLimit: 30000 
       });
       
       addLog('system', `[Vault Deposit] Broadcasting Transaction to Mempool: ${tx.hash}`);
