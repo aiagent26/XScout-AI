@@ -33,42 +33,53 @@ export class AgenticWalletService {
     // KẾT NỐI VÀO SMART CONTRACT V2 VỪA DEPLOY!
     const contractAddress = "0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5";
     
+    // Ánh xạ Mã Token thật của X Layer Mainnet thay vì dùng Fake Data Mock
+    const tokenMap: Record<string, string> = {
+      'USDC': '0x74b7f16337b8972027f6196a17a631ac6de26d22',
+      'USDT': '0x1e4a5963abfd975d8c9021ce480b42188849d41d',
+      'WOKB': '0x7a508ba48db39414ca0ea461f349c89ed4bf482e',
+      'WETH': '0x5a77f1443d16ea5cb3624ce8b1673fe6d52cb627',
+      'WBTC': '0x1a1a5b822d334544eb4b419dbed7ad22ce9cebb8'
+    };
+
+    const routerOKX = "0x633513a9Bff0eBBAfcE6AE87f6c321d22791B7bE"; // OKX DEX V5 Router trên X Layer
+
+    let tokenIn = tokenMap[fromToken.toUpperCase()] || tokenMap['USDC'];
+    let tokenOut = tokenMap[toToken.toUpperCase()] || tokenMap['WETH'];
+
     try {
-      // Đọc ABI trực tiếp bằng Cú pháp Human-Readable (Vượt rào lỗi mất File Artifact trên VPS Cloud)
       const HUMAN_ABI = [
         "function executeAITrade(address router, address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external"
       ];
       const guardContract = new ethers.Contract(contractAddress, HUMAN_ABI, agentWallet);
 
-      console.log(`\n⏳ Pushing live Execution payload onto X Layer Blockchain... Listening to Mempool heartbeat...`);
-      // Fake các tham số Token để test chức năng Revert của Smart Contract bảo vệ (PHẢI DÙNG HEX CHUẨN ĐỂ TRÁNH LỖI ENS RESOLVER TRÊN ETHERS V6)
-      const dummyRouter = "0x1111111111111111111111111111111111111111"; // OKX Router ảo
-      const dummyTokenIn = "0x2222222222222222222222222222222222222222";
-      const dummyTokenOut = "0x3333333333333333333333333333333333333333";
+      console.log(`\n⏳ Validating Authentic Protocol Paths... Router: ${routerOKX}, from: ${tokenIn}, to: ${tokenOut}`);
       const amountWei = ethers.parseEther(amount.toString());
 
-      // Gọi Hàm Thực Thi
-      // Mặc định lệnh sẽ REVERT trên chain vì Router chưa nằm trong Whitelist (Tính năng Bảo mật Cực Cao)
-      // Nhưng nó vẫn sinh ra TxHash chứng minh AI đã đẩy lệnh thực tế.
       const tx = await guardContract.executeAITrade(
-        dummyRouter,
-        dummyTokenIn, 
-        dummyTokenOut,
+        routerOKX,
+        tokenIn, 
+        tokenOut,
         amountWei,
-        0 // minAmountOut
+        0 
       );
       
       console.log(`📡 Satellite transaction broadcast successful! Synchronizing block confirmation...`);
-      await tx.wait(); // Chờ đào block
+      await tx.wait(); 
       return tx.hash;
 
     } catch (error: any) {
+      // HỦY BỎ DỮ LIỆU GIẢ! PHẢN HỒI LỖI THẬT 100% CỦA BLOCKCHAIN CHO DAPP!
+      let realErrorMsg = "Blockchain Execution Failed";
       if (error.info && error.info.error && error.info.error.message) {
-         console.log(`\n🛡️ DEFENSE TRIGGERED: AGENTIC SMART CONTRACT BOUNDS INITIATED REVERT: \n➡ Transaction absolutely forbidden by Protocol Guard logic: "${error.info.error.message}"`);
-         // Trả về một mã lỗi giả lập TxHash Reverted để báo Notification cho User
-         return "0x_TX_REVERTED_BY_AGENTIC_GUARD_" + Date.now();
+         realErrorMsg = error.info.error.message;
+      } else if (error.reason) {
+         realErrorMsg = error.reason;
+      } else if (error.message) {
+         realErrorMsg = error.message;
       }
-      throw error;
+      console.log(`\n🛡️ DEFENSE TRIGGERED / ON-CHAIN ERROR: \n➡ Transaction denied: "${realErrorMsg}"`);
+      throw new Error(realErrorMsg);
     }
   }
 }
