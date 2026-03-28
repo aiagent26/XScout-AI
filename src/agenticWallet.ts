@@ -56,6 +56,17 @@ export class AgenticWalletService {
       console.log(`\n⏳ Validating Authentic Protocol Paths... Router: ${routerOKX}, from: ${tokenIn}, to: ${tokenOut}`);
       const amountWei = ethers.parseEther(amount.toString());
 
+      // MÓC NỐI TRỰC TIẾP VÀO BLOCKCHAIN X LAYER: KIỂM TRA SỐ DƯ TÀI SẢN (USDC/USDT/...) CỦA KÉT SẮT TRƯỚC KHI TRADE
+      const erc20Abi = ["function balanceOf(address owner) view returns (uint256)"];
+      const tokenContract = new ethers.Contract(tokenIn, erc20Abi, provider);
+      
+      console.log(`🕵🏻 Thực hiện Query Onchain quét số dư của Két Sắt: Vault [${contractAddress}]...`);
+      const vaultTokenBalanceInfo = await tokenContract.balanceOf(contractAddress);
+
+      if (vaultTokenBalanceInfo < amountWei) {
+          throw new Error(`Insufficient Token Capital Delegated to Vault Smart Contract. Requested: ${amount} ${fromToken.toUpperCase()}, but Onchain Vault Balance holds exactly 0.0 ${fromToken.toUpperCase()}`);
+      }
+
       const tx = await guardContract.executeAITrade(
         routerOKX,
         tokenIn, 
