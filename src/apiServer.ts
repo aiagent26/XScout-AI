@@ -85,7 +85,7 @@ app.post('/api/trade', async (req: any, res: any) => {
         let txHash = "N/A - Execution Aborted by AI Council";
         let actionStatus = "Rejected internally by Security Bounds";
 
-        if (debateResult.finalDecision && debateResult.finalDecision.action === "SWAP") {
+        if (debateResult.finalDecision && (debateResult.finalDecision.action === "SWAP" || debateResult.finalDecision.action === "STAKE")) {
             const walletService = new AgenticWalletService(process.env.OKX_ONCHAINOS_API_KEY || 'demo-key');
             try {
                 txHash = await walletService.executeTrade(
@@ -114,8 +114,8 @@ app.post('/api/trade', async (req: any, res: any) => {
             if (actionStatus.includes("Failed")) statusIcon = "🔴"; // Đỏ nếu Lỗi Onchain
             if (actionStatus.includes("Successfully")) statusIcon = "🟢"; // Xanh nếu Chạy Ngon
 
-            const actionStr = debateResult.finalDecision.action === "SWAP" 
-                              ? `SWAP ${debateResult.finalDecision.amount || ''} ${debateResult.finalDecision.from || ''} ➡ ${debateResult.finalDecision.to || ''}`
+            const actionStr = (debateResult.finalDecision.action === "SWAP" || debateResult.finalDecision.action === "STAKE")
+                              ? `${debateResult.finalDecision.action} ${debateResult.finalDecision.amount || ''} ${debateResult.finalDecision.from || ''} ➡ ${debateResult.finalDecision.to || ''}`
                               : `CANCELLED (Vetoed Intent)`;
 
             await telegram.sendAlert(targetTelegramID, `${statusIcon} <b>XScout Live Execution Alert</b>\n\n- <b>Status:</b> ${actionStatus}\n- <b>Action:</b> ${actionStr}\n- <b>TxHash:</b> <code>${txHash}</code>\n\n📝 <b>AI Agent Rationale:</b>\n${debateResult.finalDecision.explanation}`);
