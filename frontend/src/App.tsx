@@ -27,6 +27,8 @@ function App() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
+  const [vaultBalance, setVaultBalance] = useState('0.0000');
+  const vaultAddress = "0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5"; // X Layer Vault V2
   const [telegramEnabled, setTelegramEnabled] = useState(false);
   const [telegramUid, setTelegramUid] = useState('');
   const [telegramNickname, setTelegramNickname] = useState('');
@@ -48,10 +50,25 @@ function App() {
     setLogs(prev => [...prev, { id: Date.now() + Math.random(), type, text }]);
   };
 
+  const fetchVaultBalance = async () => {
+    try {
+      if ((window as any).ethereum) {
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        const balanceWei = await provider.getBalance(vaultAddress);
+        const balanceEth = ethers.formatEther(balanceWei);
+        // Làm tròn 4 chữ số thập phân
+        setVaultBalance(Number(balanceEth).toFixed(4));
+      }
+    } catch (e) {
+      console.error("Failed to fetch Vault Balance", e);
+    }
+  };
+
   const handleWalletClick = async () => {
     if (walletConnected) {
       setWalletConnected(false);
       setWalletAddress('');
+      setVaultBalance('0.0000');
     } else {
       setIsConnecting(true);
       try {
@@ -63,6 +80,7 @@ function App() {
           if (accounts.length > 0) {
             setWalletAddress(accounts[0]);
             setWalletConnected(true);
+            await fetchVaultBalance(); // Tải số dư Két
           }
         } else {
           alert("PLEASE INSTALL METAMASK OR OKX WEB3 WALLET EXTENSION TO PROCEED!");
@@ -103,8 +121,6 @@ function App() {
       const signer = await provider.getSigner();
       
       // Gửi tiền thật vào Smart Contract Két sắt trên X Layer (Bản V2 Mới Nhất)
-      const vaultAddress = "0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5";
-      
       const tx = await signer.sendTransaction({
         to: vaultAddress,
         value: ethers.parseEther(depositAmount)
@@ -114,6 +130,7 @@ function App() {
       await tx.wait(); // Chờ Mạng lưới xác nhận Block
       
       addLog('security', `✅ FUNDING CONFIRMED: ${depositAmount} Native Asset successfully Delegated to Agentic Smart Contract Vault constraints!`);
+      await fetchVaultBalance(); // Cập nhật lại số dư Két Sắt ngay lập tức
     } catch (e: any) {
       addLog('system', `[Vault Deposit] User Canceled or Transaction Failed: ${e.message}`);
     } finally {
@@ -257,22 +274,37 @@ function App() {
             </button>
             
             {walletConnected && (
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'rgba(255, 153, 0, 0.05)', padding: '5px', borderRadius: '8px' }}>
-                <input 
-                  type="number" 
-                  value={depositAmount} 
-                  onChange={(e) => setDepositAmount(e.target.value)} 
-                  disabled={isExecuting}
-                  style={{ width: '80px', background: 'transparent', border: '1px solid rgba(255,153,0,0.5)', color: '#fff', padding: '8px', borderRadius: '4px', outline: 'none' }}
-                />
-                <button 
-                  className="bws-btn" 
-                  onClick={handleDeposit} 
-                  disabled={isExecuting}
-                  style={{ flex: 1, background: 'rgba(255, 153, 0, 0.1)', borderColor: '#ff9900', color: '#ff9900', fontSize: '0.85rem', margin: 0 }}
-                >
-                  💰 Delegate Capital (X Layer)
-                </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.03)', 
+                  border: '1px solid rgba(255, 255, 255, 0.1)', 
+                  borderRadius: '8px', 
+                  padding: '10px', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center' 
+                }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>🏦 Vault TVL:</span>
+                  <strong style={{ color: 'var(--accent-green)', fontSize: '1.1rem' }}>{vaultBalance} OKB</strong>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'rgba(255, 153, 0, 0.05)', padding: '5px', borderRadius: '8px' }}>
+                  <input 
+                    type="number" 
+                    value={depositAmount} 
+                    onChange={(e) => setDepositAmount(e.target.value)} 
+                    disabled={isExecuting}
+                    style={{ width: '80px', background: 'transparent', border: '1px solid rgba(255,153,0,0.5)', color: '#fff', padding: '8px', borderRadius: '4px', outline: 'none' }}
+                  />
+                  <button 
+                    className="bws-btn" 
+                    onClick={handleDeposit} 
+                    disabled={isExecuting}
+                    style={{ flex: 1, background: 'rgba(255, 153, 0, 0.1)', borderColor: '#ff9900', color: '#ff9900', fontSize: '0.85rem', margin: 0 }}
+                  >
+                    💰 Delegate Capital (X Layer)
+                  </button>
+                </div>
               </div>
             )}
           </div>
