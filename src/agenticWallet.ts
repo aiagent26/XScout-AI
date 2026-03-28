@@ -42,7 +42,7 @@ export class AgenticWalletService {
       'WBTC': '0x1a1a5b822d334544eb4b419dbed7ad22ce9cebb8'
     };
 
-    const routerOKX = "0x633513a9Bff0eBBAfcE6AE87f6c321d22791B7bE"; // OKX DEX V5 Router trên X Layer
+    const routerOKX = "0x633513a9bff0ebbafce6ae87f6c321d22791b7be"; // OKX DEX V5 Router trên X Layer (All Lowercase to bypass EIP-55 Checksum strict parsing)
 
     let tokenIn = tokenMap[fromToken.toUpperCase()] || tokenMap['USDC'];
     let tokenOut = tokenMap[toToken.toUpperCase()] || tokenMap['WETH'];
