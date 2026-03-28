@@ -82,20 +82,22 @@ app.post('/api/trade', async (req: any, res: any) => {
         const debateResult = await council.debate(tokenMarketLiveInfo, prompt);
 
         // 3. The Execution Sequence
-        let txHash = "0x_TX_REJECTED_BY_AI_JUDGE";
-        let actionStatus = "Declined Execution Due to Sub-par Viability Score";
+        let txHash = "N/A - Execution Aborted by AI Council";
+        let actionStatus = "Rejected internally by Security Bounds";
 
-        if (debateResult.finalDecision.confidenceScore > 0.5 && debateResult.finalDecision.amount > 0) {
+        if (debateResult.finalDecision && debateResult.finalDecision.action === "SWAP") {
             const walletService = new AgenticWalletService(process.env.OKX_ONCHAINOS_API_KEY || 'demo-key');
-            console.log(`🚀 AI Voted FOR Trading Protocol. Initiating Ethers Smart Contract Execution via ${process.env.AI_AGENT_PUBLIC_ADDRESS || "TEE Key"}`);
-            
-            txHash = await walletService.executeTrade(
-                debateResult.finalDecision.from, 
-                debateResult.finalDecision.to, 
-                debateResult.finalDecision.amount
-            );
-
-            actionStatus = "Executed Onchain Successfully";
+            try {
+                txHash = await walletService.executeTrade(
+                    debateResult.finalDecision.from, 
+                    debateResult.finalDecision.to, 
+                    debateResult.finalDecision.amount
+                );
+                actionStatus = "Executed Onchain Successfully";
+            } catch (err: any) {
+                txHash = "N/A - Reverted by Onchain Restrictions";
+                actionStatus = `Execution Failed: ${err.message}`;
+            }
 
             // Bắn Thông báo về đúng Nhạc Điện Thoại của Chủ Nhân Ví
             const telegram = new TelegramService();
