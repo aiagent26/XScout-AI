@@ -103,8 +103,17 @@ app.post('/api/trade', async (req: any, res: any) => {
                 );
                 actionStatus = "Executed Onchain Successfully";
             } catch (err: any) {
+                let errMsg = err.message;
+                if (errMsg.includes("Router chua duoc cap phep")) {
+                    errMsg = "Unapproved DEX Router. Access Denied by Bound.";
+                } else if (errMsg.includes("cooldown") || errMsg.includes("Tam giu onchain")) {
+                    errMsg = "Onchain Rate Limit: Trade Cooldown active.";
+                } else if (errMsg.includes("Token Chua Niem Yet") || errMsg.includes("Khong tim thay Pool")) {
+                    errMsg = "Unlisted Token: Liquidity pool not found on DEX.";
+                }
+                
                 txHash = "N/A - Reverted by Onchain Restrictions";
-                actionStatus = `Execution Failed: ${err.message}`;
+                actionStatus = `Execution Failed: ${errMsg}`;
             }
         } else {
             console.log(`\n🛑 AI Guardrail Veto: Execution aborted internally. Judge Agent deemed the trade too high-risk or mathematically unprofitable.`);
