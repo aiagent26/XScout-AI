@@ -297,7 +297,7 @@ function App() {
   return (
     <div className="app-layout">
       <div className="top-nav">
-        <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
+        <div className="top-nav-flex" style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
           <h1 className="brand-title" style={{fontSize: '1.2rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px'}}>
              <img src="/favicon.png" alt="XScout Logo" style={{width: '24px', height: '24px', borderRadius: '4px'}} /> XScout AI
           </h1>
@@ -320,7 +320,7 @@ function App() {
           </select>
           
           {/* Trust & Credibility Marks */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', paddingLeft: '10px', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+          <div className="social-links">
             <a href="https://www.okx.com/explorer/xlayer/address/0x379BF1f5fCfdc39d485ef81e39c8c6f63231eec5" target="_blank" rel="noreferrer" style={{color: 'var(--accent-green)', textDecoration: 'none', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0,255,136,0.1)', padding: '4px 8px', borderRadius: '4px'}}>
               🛡️ Verified Contract
             </a>
