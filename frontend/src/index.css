@@ -259,8 +259,12 @@ body {
 }
 
 @media (max-width: 768px) {
-  body { overflow: auto; height: auto; }
-  .app-layout { height: auto; overflow: auto; display: block; }
+  html, body, #root, .app-layout { 
+    height: auto !important; 
+    overflow-y: auto !important; 
+    overflow-x: hidden !important; 
+    display: block; 
+  }
   
   .top-nav {
     flex-direction: column;
